@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "424330677832",
+    "firebase_url": "https://intellegent-95751.firebaseio.com",
+    "project_id": "intellegent-95751",
+    "storage_bucket": "intellegent-95751.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:424330677832:android:baf1aa13b29cac97",
+        "android_client_info": {
+          "package_name": "com.iot.kou.intelligenttrafficsystem"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "424330677832-ci4dtvut8ctie9ql0td8cnl29h23odm1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVSBPQGTxlbgd95IPwXL2AfXRDm_r5hXk"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

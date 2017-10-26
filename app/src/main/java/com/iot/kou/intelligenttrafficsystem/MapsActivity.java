@@ -30,34 +30,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 // ...
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                rsu = dataSnapshot.getValue(RoadSiteUnit.class);
+                rsu = dataSnapshot.getValue(RoadSiteUnit.class);//verileri getiriyor
+                if(rsu!=null) {
+                    setMap();
+                }
             }
+
 
             @Override
             public void onCancelled(DatabaseError databaseError) {}
 
         });
 
-     //   myRef.setValue(new RoadSiteUnit(7,"120","90","20","60"));
-
+      //  myRef.setValue(new RoadSiteUnit(1,120.0,90.0,"20","60"));//todo: data base eklemesi bununla yapılabilir
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+
+    }
+
+    private void setMap() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
-
-
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
         // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        Double rsuLtd=rsu.getLtd();
+        Double rsuLng=rsu.getLng();
+
+        LatLng rsuTest = new LatLng(rsuLtd,rsuLng);
+      //  LatLng test = new LatLng(10, -20); //todo:test data
+        if(mMap!=null) {
+            mMap.addMarker(new MarkerOptions().position(rsuTest).title("Road Site Unit"));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(rsuTest));
+        }
     }
 }

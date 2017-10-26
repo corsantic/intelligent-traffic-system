@@ -9,12 +9,12 @@ public class RoadSiteUnit {
 
     }
 
-    public RoadSiteUnit(int rsuId, String lng, String ltd, String weather, String kayganlik) {
+    public RoadSiteUnit(int rsuId, Double lng, Double ltd, String weather, String smoothness) {
         this.rsuId = rsuId;
         this.lng = lng;
         this.ltd = ltd;
         this.weather = weather;
-        this.kayganlik = kayganlik;
+        this.smoothness = smoothness;
     }
 
     public int getRsuId() {
@@ -25,21 +25,6 @@ public class RoadSiteUnit {
         this.rsuId = rsuId;
     }
 
-    public String getLng() {
-        return lng;
-    }
-
-    public void setLng(String lng) {
-        this.lng = lng;
-    }
-
-    public String getLtd() {
-        return ltd;
-    }
-
-    public void setLtd(String ltd) {
-        this.ltd = ltd;
-    }
 
     public String getWeather() {
         return weather;
@@ -49,19 +34,35 @@ public class RoadSiteUnit {
         this.weather = weather;
     }
 
-    public String getKayganlik() {
-        return kayganlik;
+
+    public Double getLng() {
+        return lng;
     }
 
-    public void setKayganlik(String kayganlik) {
-        this.kayganlik = kayganlik;
+    public void setLng(Double lng) {
+        this.lng = lng;
+    }
+
+    public Double getLtd() {
+        return ltd;
+    }
+
+    public void setLtd(Double ltd) {
+        this.ltd = ltd;
     }
 
     private int rsuId;
-    private String  lng;
-    private String  ltd;
+    private Double  lng;
+    private Double  ltd;
     private String  weather;
-    private String  kayganlik;
+    private String  smoothness;
 
 
+    public String getSmoothness() {
+        return smoothness;
+    }
+
+    public void setSmoothness(String smoothness) {
+        this.smoothness = smoothness;
+    }
 }

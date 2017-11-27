@@ -1,10 +1,15 @@
 package com.iot.kou.intelligenttrafficsystem.model;
 
-/**
- * Created by DESTAN on 25.10.2017.
- */
 
 public class RoadSiteUnit {
+    private int rsuId;
+    private Double lng;
+    private Double ltd;
+    private String weather;
+    private String smoothness;
+    private String status;
+    private int risk;
+
     public RoadSiteUnit() {
 
     }
@@ -51,11 +56,22 @@ public class RoadSiteUnit {
         this.ltd = ltd;
     }
 
-    private int rsuId;
-    private Double  lng;
-    private Double  ltd;
-    private String  weather;
-    private String  smoothness;
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public int getRisk() {
+        return risk;
+    }
+
+    public void setRisk(int risk) {
+        this.risk = risk;
+    }
 
 
     public String getSmoothness() {

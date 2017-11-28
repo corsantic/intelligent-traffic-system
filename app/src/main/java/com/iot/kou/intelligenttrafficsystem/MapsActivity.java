@@ -1,15 +1,5 @@
 package com.iot.kou.intelligenttrafficsystem;
 
-import android.content.Context;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -21,10 +11,26 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.iot.kou.intelligenttrafficsystem.model.RoadSiteUnit;
 import com.iot.kou.intelligenttrafficsystem.model.Vehicle;
+
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.NotificationCompat;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -130,6 +136,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    private void sendNotification(String title, String body)
+    {
+        Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(title)
+                .setContentText(body)
+                .setAutoCancel(true)
+                .setSound(defaultSoundUri)
+                .setContentIntent(buildPendingIntent(remoteNotification));
+
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
+    }
+
+    private PendingIntent buildPendingIntent(RemoteMessage remoteNotification)
+    {
+        Intent intent = new Intent(this, KobisActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        if (remoteNotification.getData().containsKey(PACKAGE_KEY))
+        {
+            String packageName = remoteNotification.getData().get(PACKAGE_KEY);
+            intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse("market://details?id=" + packageName));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+        return PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+    }
+    
+
+
     private void setSnippet() {
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
 
@@ -162,6 +199,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
     }
+
+
 
 }
 

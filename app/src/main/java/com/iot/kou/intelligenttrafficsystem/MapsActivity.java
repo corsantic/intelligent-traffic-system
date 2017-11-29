@@ -36,7 +36,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 {
 
     private GoogleMap mMap;
-    private List<RoadSiteUnit> rsu;
+    private RoadSiteUnit rsu;
     private Vehicle vehicle;
     private int vehicleId = 0;
 
@@ -59,7 +59,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
             {
-                rsu = (List<RoadSiteUnit>) dataSnapshot.getValue();//verileri getiriyor
+                rsu =  dataSnapshot.getValue(RoadSiteUnit.class);//verileri getiriyor
                 if (rsu != null)
                 {
                     setMap();
@@ -115,12 +115,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (rsu != null && vehicle != null && mMap != null) {
             Double vehicleLtd = vehicle.getLtd();
             Double vehicleLng = vehicle.getLng();
-            Double rsuLtd = rsu.get(0).getLtd();
-            Double rsuLng = rsu.get(0).getLng();
+            Double rsuLtd = rsu.getLtd();
+            Double rsuLng = rsu.getLng();
 
             LatLng rsuTest = new LatLng(rsuLng, rsuLtd);
             LatLng vehicleTest = new LatLng(vehicleLng, vehicleLtd);
 
+            if(vehicleLng==42.183452 && vehicleLtd==25.244719)
+                sendNotification("Road Site Unit",("Weather:" + rsu.getWeather()+","  +
+                        "Smoothness:" + rsu.getSmoothness() +","  +
+                        "Risk:" + rsu.getRisk() +","+
+                        "Road Status:" + rsu.getStatus()
+                ));
 
             Marker vehicleMarker = mMap.addMarker(new MarkerOptions()
                     .position(vehicleTest)
@@ -135,10 +141,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .flat(true)
                     .icon(BitmapDescriptorFactory.fromResource(R.raw.unit))
 
-                    .snippet("Weather:" + rsu.get(0).getWeather() + "\n" +
-                            "Smoothness:" + rsu.get(0).getSmoothness() + "\n" +
-                            "Risk Percentage:" + rsu.get(0).getRisk() + "\n" +
-                            "Road Status:" + rsu.get(0).getStatus()
+                    .snippet("Weather:" + rsu.getWeather() + "\n" +
+                            "Smoothness:" + rsu.getSmoothness() + "\n" +
+                            "Risk Percentage:" + rsu.getRisk() + "\n" +
+                            "Road Status:" + rsu.getStatus()
                     ));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(vehicleTest));
 

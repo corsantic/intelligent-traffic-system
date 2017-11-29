@@ -1,5 +1,7 @@
 package com.iot.kou.intelligenttrafficsystem;
 
+import java.util.List;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -11,14 +13,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.iot.kou.intelligenttrafficsystem.model.RoadSiteUnit;
 import com.iot.kou.intelligenttrafficsystem.model.Vehicle;
 
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -26,51 +26,59 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
+{
 
 
-    private GoogleMap mMap;
-    private RoadSiteUnit rsu;
-    private Vehicle vehicle;
-    private int vehicleId=0;
     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-
+    private GoogleMap mMap;
+    private List<RoadSiteUnit> rsu;
+    private Vehicle vehicle;
+    private int vehicleId = 0;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
         DatabaseReference vehicleRef = database.child("vehicle").child(String.valueOf(vehicleId));
         DatabaseReference myRef = database.child("data");
 
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addValueEventListener(new ValueEventListener()
+        {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                rsu = dataSnapshot.getValue(RoadSiteUnit.class);//verileri getiriyor
-                if (rsu != null) {
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                rsu = (List<RoadSiteUnit>) dataSnapshot.getValue();//verileri getiriyor
+                if (rsu != null)
+                {
                     setMap();
 
                 }
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(DatabaseError databaseError)
+            {
             }
 
         });
 
-        vehicleRef.addValueEventListener(new ValueEventListener() {
+        vehicleRef.addValueEventListener(new ValueEventListener()
+        {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
                 vehicle = dataSnapshot.getValue(Vehicle.class);
-                if (vehicle != null) {
+                if (vehicle != null)
+                {
                     setMap();
                     if (mMap != null)
                         mMap.clear();
@@ -78,7 +86,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(DatabaseError databaseError)
+            {
 
             }
         });
@@ -88,27 +97,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
     }
 
-    private void setMap() {
+    private void setMap()
+    {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(GoogleMap googleMap)
+    {
         mMap = googleMap;
 
         Double vehicleLtd = vehicle.getLtd();
         Double vehicleLng = vehicle.getLng();
-        Double rsuLtd = rsu.getLtd();
-        Double rsuLng = rsu.getLng();
+        Double rsuLtd = rsu.get(0).getLtd();
+        Double rsuLng = rsu.get(0).getLng();
 
 
         LatLng rsuTest = new LatLng(rsuLng, rsuLtd);
         LatLng vehicleTest = new LatLng(vehicleLng, vehicleLtd);
         setSnippet();
         //  LatLng test = new LatLng(10, -20); //todo:test data
-        if (mMap != null && rsu != null && vehicle != null) {
+        if (mMap != null && rsu != null && vehicle != null)
+        {
             Marker vehicleMarker = mMap.addMarker(new MarkerOptions()
                     .position(vehicleTest)
                     .title("Vehicle")
@@ -121,16 +133,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .title("RSU")
                     .flat(true)
                     .icon(BitmapDescriptorFactory.fromResource(R.raw.unit))
-                    .snippet("Weather:" + rsu.getWeather() + "\n" +
-                            "Smoothness:" + rsu.getSmoothness()+"\n"+
-                            "Risk Percentage:"+rsu.getRisk() + "\n" +
-                            "Road Status:"+rsu.getStatus()
+                    .snippet("Weather:" + rsu.get(0).getWeather() + "\n" +
+                            "Smoothness:" + rsu.get(0).getSmoothness() + "\n" +
+                            "Risk Percentage:" + rsu.get(0).getRisk() + "\n" +
+                            "Road Status:" + rsu.get(0).getStatus()
                     ));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(vehicleTest));
 
             vehicleMarker.showInfoWindow();
             rsuMarker.showInfoWindow();
-        } else
+        }
+        else
             return;
 
 
@@ -144,39 +157,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .setContentTitle(title)
                 .setContentText(body)
                 .setAutoCancel(true)
-                .setSound(defaultSoundUri)
-                .setContentIntent(buildPendingIntent(remoteNotification));
+                .setSound(defaultSoundUri);
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build());
+        notificationManager.notify(121, notificationBuilder.build());
     }
 
-    private PendingIntent buildPendingIntent(RemoteMessage remoteNotification)
+    private void setSnippet()
     {
-        Intent intent = new Intent(this, KobisActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        if (remoteNotification.getData().containsKey(PACKAGE_KEY))
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter()
         {
-            String packageName = remoteNotification.getData().get(PACKAGE_KEY);
-            intent = new Intent(Intent.ACTION_VIEW);
-            intent.setData(Uri.parse("market://details?id=" + packageName));
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        }
-        return PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
-    }
-    
-
-
-    private void setSnippet() {
-        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
 
             @Override
-            public View getInfoWindow(Marker arg0) {
+            public View getInfoWindow(Marker arg0)
+            {
                 return null;
             }
 
             @Override
-            public View getInfoContents(Marker marker) {
+            public View getInfoContents(Marker marker)
+            {
 
                 Context appContext = getApplicationContext();
                 LinearLayout info = new LinearLayout(appContext);
@@ -199,7 +199,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
     }
-
 
 
 }

@@ -32,17 +32,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private RoadSiteUnit rsu;
     private Vehicle vehicle;
-    private int vehicleId=0;
+    private int vehicleId = 0;
+    private int rsuId = 0;
     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
+    DatabaseReference vehicleRef = database.child("vehicle").child(String.valueOf(vehicleId));
+    DatabaseReference myRef = database.child("data").child(String.valueOf(rsuId));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
-        DatabaseReference vehicleRef = database.child("vehicle").child(String.valueOf(vehicleId));
-        DatabaseReference myRef = database.child("data");
 
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -78,8 +79,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
 
-        //  myRef.setValue(new RoadSiteUnit(1,120.0,90.0,"20","60"));//todo: data base eklemesi bununla yapılabilir
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
     }
 
     private void setMap() {
@@ -91,18 +90,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        Double vehicleLtd = vehicle.getLtd();
-        Double vehicleLng = vehicle.getLng();
-        Double rsuLtd = rsu.getLtd();
-        Double rsuLng = rsu.getLng();
-
-
-        LatLng rsuTest = new LatLng(rsuLng, rsuLtd);
-        LatLng vehicleTest = new LatLng(vehicleLng, vehicleLtd);
         setSnippet();
-        //  LatLng test = new LatLng(10, -20); //todo:test data
-        if (mMap != null && rsu != null && vehicle != null) {
+
+
+        if (rsu != null && vehicle != null && mMap != null) {
+            Double vehicleLtd = vehicle.getLtd();
+            Double vehicleLng = vehicle.getLng();
+            Double rsuLtd = rsu.getLtd();
+            Double rsuLng = rsu.getLng();
+
+            LatLng rsuTest = new LatLng(rsuLng, rsuLtd);
+            LatLng vehicleTest = new LatLng(vehicleLng, vehicleLtd);
+
             Marker vehicleMarker = mMap.addMarker(new MarkerOptions()
                     .position(vehicleTest)
                     .title("Vehicle")
@@ -116,14 +115,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     .flat(true)
                     .icon(BitmapDescriptorFactory.fromResource(R.raw.unit))
                     .snippet("Weather:" + rsu.getWeather() + "\n" +
-                            "Smoothness:" + rsu.getSmoothness()+"\n"+
-                            "Risk Percentage:"+rsu.getRisk() + "\n" +
-                            "Road Status:"+rsu.getStatus()
+                            "Smoothness:" + rsu.getSmoothness() + "\n" +
+                            "Risk Percentage:" + rsu.getRisk() + "\n" +
+                            "Road Status:" + rsu.getStatus()
                     ));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(vehicleTest));
 
             vehicleMarker.showInfoWindow();
             rsuMarker.showInfoWindow();
+
         } else
             return;
 

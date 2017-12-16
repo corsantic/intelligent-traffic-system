@@ -1,67 +1,101 @@
 package com.iot.kou.intelligenttrafficsystem.model;
 
-/**
- * Created by DESTAN on 25.10.2017.
- */
 
-public class RoadSiteUnit {
-    public RoadSiteUnit() {
+public class RoadSiteUnit
+{
+    private int rsuId;
+    private Double lng;
+    private Double ltd;
+    private String weather;
+    private String smoothness;
+    private String status;
+    private int risk;
+
+    public RoadSiteUnit()
+    {
 
     }
 
-    public RoadSiteUnit(int rsuId, String lng, String ltd, String weather, String kayganlik) {
+    public RoadSiteUnit(int rsuId, Double lng, Double ltd, String weather, String smoothness)
+    {
         this.rsuId = rsuId;
         this.lng = lng;
         this.ltd = ltd;
         this.weather = weather;
-        this.kayganlik = kayganlik;
+        this.smoothness = smoothness;
     }
 
-    public int getRsuId() {
+    public int getRsuId()
+    {
         return rsuId;
     }
 
-    public void setRsuId(int rsuId) {
+    public void setRsuId(int rsuId)
+    {
         this.rsuId = rsuId;
     }
 
-    public String getLng() {
-        return lng;
-    }
 
-    public void setLng(String lng) {
-        this.lng = lng;
-    }
-
-    public String getLtd() {
-        return ltd;
-    }
-
-    public void setLtd(String ltd) {
-        this.ltd = ltd;
-    }
-
-    public String getWeather() {
+    public String getWeather()
+    {
         return weather;
     }
 
-    public void setWeather(String weather) {
+    public void setWeather(String weather)
+    {
         this.weather = weather;
     }
 
-    public String getKayganlik() {
-        return kayganlik;
+
+    public Double getLng()
+    {
+        return lng;
     }
 
-    public void setKayganlik(String kayganlik) {
-        this.kayganlik = kayganlik;
+    public void setLng(Double lng)
+    {
+        this.lng = lng;
     }
 
-    private int rsuId;
-    private String  lng;
-    private String  ltd;
-    private String  weather;
-    private String  kayganlik;
+    public Double getLtd()
+    {
+        return ltd;
+    }
+
+    public void setLtd(Double ltd)
+    {
+        this.ltd = ltd;
+    }
 
 
+    public String getStatus()
+    {
+        return status;
+    }
+
+    public void setStatus(String status)
+    {
+        this.status = status;
+    }
+
+    public int getRisk()
+    {
+        return risk;
+    }
+
+    public void setRisk(int risk)
+    {
+        this.risk = risk;
+    }
+
+
+    public String getSmoothness()
+    {
+        return smoothness;
+    }
+
+    public void setSmoothness(String smoothness)
+    {
+        this.smoothness = smoothness;
+    }
 }

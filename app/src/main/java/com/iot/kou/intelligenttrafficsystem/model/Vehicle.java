@@ -1,8 +1,6 @@
 package com.iot.kou.intelligenttrafficsystem.model;
 
-/**
- * Created by DESTAN on 27.11.2017.
- */
+
 
 public class Vehicle
 {

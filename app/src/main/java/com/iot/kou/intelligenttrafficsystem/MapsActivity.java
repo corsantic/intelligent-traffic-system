@@ -1,5 +1,6 @@
 package com.iot.kou.intelligenttrafficsystem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -7,7 +8,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DataSnapshot;
@@ -20,6 +23,7 @@ import com.iot.kou.intelligenttrafficsystem.model.Vehicle;
 
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.RingtoneManager;
@@ -27,129 +31,141 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
-{
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private RoadSiteUnit rsu;
-    private Vehicle vehicle;
-    private int vehicleId = 0;
+    private List<RoadSiteUnit> rsu = new ArrayList<>();
+    private Vehicle vehicle ;
 
-    private int rsuId = 0;
+
     DatabaseReference database = FirebaseDatabase.getInstance().getReference();
 
-    DatabaseReference vehicleRef = database.child("vehicle").child(String.valueOf(vehicleId));
-    DatabaseReference myRef = database.child("data").child(String.valueOf(rsuId));
-
+    DatabaseReference vehicleRef = database.child("vehicle").child("0");
+    DatabaseReference myRef = database.child("data");
+//.child(String.valueOf(rsuId))
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
 
-        myRef.addValueEventListener(new ValueEventListener()
-        {
+
+        myRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
-            {
-                rsu =  dataSnapshot.getValue(RoadSiteUnit.class);//verileri getiriyor
-                if (rsu != null)
-                {
-                    setMap();
+            public void onDataChange(DataSnapshot snapshot) {
+                Log.e("Count ", "" + snapshot.getChildrenCount());
+                for (DataSnapshot postSnapshot : snapshot.getChildren()) {
+                    rsu.add(postSnapshot.getValue(RoadSiteUnit.class));
+
 
                 }
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("The read failed: ", databaseError.getMessage());
             }
-
         });
 
-        vehicleRef.addValueEventListener(new ValueEventListener()
-        {
+
+        vehicleRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot)
-            {
-                vehicle = dataSnapshot.getValue(Vehicle.class);
-                if (vehicle != null)
-                {
-                    setMap();
-                    if (mMap != null)
+            public void onDataChange(DataSnapshot snapshot) {
+                Log.e("Count ", "" + snapshot.getChildrenCount());
+               {
+                   vehicle = snapshot.getValue(Vehicle.class);
+                    if(mMap!=null)
                         mMap.clear();
+                    setMap();
+
                 }
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError)
-            {
-
+            public void onCancelled(DatabaseError databaseError) {
+                Log.e("The read failed: ", databaseError.getMessage());
             }
         });
-
 
     }
 
-    private void setMap()
-    {
+
+    private void setMap() {
+
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap)
-    {
+    public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         setSnippet();
 
 
+
         if (rsu != null && vehicle != null && mMap != null) {
-            Double vehicleLtd = vehicle.getLtd();
-            Double vehicleLng = vehicle.getLng();
-            Double rsuLtd = rsu.getLtd();
-            Double rsuLng = rsu.getLng();
 
-            LatLng rsuTest = new LatLng(rsuLng, rsuLtd);
-            LatLng vehicleTest = new LatLng(vehicleLng, vehicleLtd);
+                Double vehicleLtd = vehicle.getLtd();
+                Double vehicleLng = vehicle.getLng();
+                LatLng vehicleTest = new LatLng(vehicleLng, vehicleLtd);
 
-            if(vehicleLng==42.183452 && vehicleLtd==25.244719)
-                sendNotification("Road Site Unit",("Weather:" + rsu.getWeather()+","  +
-                        "Smoothness:" + rsu.getSmoothness() +","  +
-                        "Risk:" + rsu.getRisk() +","+
-                        "Road Status:" + rsu.getStatus()
-                ));
+                Marker vehicleMarker = mMap.addMarker(new MarkerOptions()
+                        .position(vehicleTest)
+                        .title("Vehicle")
+                        .icon(BitmapDescriptorFactory.fromResource(R.raw.vehicle))
+                        .snippet(+vehicleLtd + "-" +
+                                +vehicleLng));
 
-            Marker vehicleMarker = mMap.addMarker(new MarkerOptions()
-                    .position(vehicleTest)
-                    .title("Vehicle")
-                    .icon(BitmapDescriptorFactory.fromResource(R.raw.vehicle))
-                    .snippet(+vehicleLtd + "-" +
-                            +vehicleLng));
 
-            Marker rsuMarker = mMap.addMarker(new MarkerOptions()
-                    .position(rsuTest)
-                    .title("RSU")
-                    .flat(true)
-                    .icon(BitmapDescriptorFactory.fromResource(R.raw.unit))
 
-                    .snippet("Weather:" + rsu.getWeather() + "\n" +
-                            "Smoothness:" + rsu.getSmoothness() + "\n" +
-                            "Risk Percentage:" + rsu.getRisk() + "\n" +
-                            "Road Status:" + rsu.getStatus()
-                    ));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(vehicleTest));
+                for (int i = 0; i < rsu.size() ; i++) {
+                RoadSiteUnit roadSiteUnit = rsu.get(i);
 
-            vehicleMarker.showInfoWindow();
-            rsuMarker.showInfoWindow();
+                LatLng rsuTest = new LatLng(roadSiteUnit.getLng(), roadSiteUnit.getLtd());
+
+                Marker rsuMarker = mMap.addMarker(new MarkerOptions()
+                        .position(rsuTest)
+                        .title("RSU")
+                        .flat(true)
+                        .icon(BitmapDescriptorFactory.fromResource(R.raw.unit))
+                        .snippet("Weather:" + roadSiteUnit.getWeather() + "\n" +
+                                "Smoothness:" + roadSiteUnit.getSmoothness() + "\n" +
+                                "Risk Percentage:" + roadSiteUnit.getRisk() + "\n" +
+                                "Road Status:" + roadSiteUnit.getStatus()
+                        ));
+
+                CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .target(vehicleTest)
+                        .zoom(15)
+                        .build();
+                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+
+                    if (Math.abs(roadSiteUnit.getLtd() - vehicleLtd) < 0.000800 && Math.abs(roadSiteUnit.getLng() - vehicleLng) < 0.000600) {
+                        sendNotification("RsuId:"+String.valueOf(roadSiteUnit.getRsuId()), ("Weather:" + roadSiteUnit.getWeather() + "," +
+                                "Smoothness:" + roadSiteUnit.getSmoothness() + "," +
+                                "Risk:" + roadSiteUnit.getRisk() + "," +
+                                "Road Status:" + roadSiteUnit.getStatus()
+                        ));
+                    }
+            }
+
+
+
+
+
 
 
         } else
@@ -158,8 +174,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    private void sendNotification(String title, String body)
-    {
+    private void sendNotification(String title, String body) {
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
@@ -172,20 +187,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         notificationManager.notify(121, notificationBuilder.build());
     }
 
-    private void setSnippet()
-    {
-        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter()
-        {
+    private void setSnippet() {
+        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
 
             @Override
-            public View getInfoWindow(Marker arg0)
-            {
+            public View getInfoWindow(Marker arg0) {
                 return null;
             }
 
             @Override
-            public View getInfoContents(Marker marker)
-            {
+            public View getInfoContents(Marker marker) {
 
                 Context appContext = getApplicationContext();
                 LinearLayout info = new LinearLayout(appContext);
@@ -208,6 +219,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
     }
+
+
+
 
 
 }
